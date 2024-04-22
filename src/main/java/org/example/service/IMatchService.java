@@ -4,6 +4,8 @@ import org.example.model.Match;
 import org.example.model.Team;
 import org.example.model.TeamKind;
 
+import java.util.List;
+
 public interface IMatchService {
 
     Match startMatch(Team homeTeam, Team awayTeam);
@@ -11,4 +13,6 @@ public interface IMatchService {
     Match increaseScore(Match match, TeamKind teamKind);
 
     void finishMatch(Match match);
+
+    List<Match> getScoreBoard();
 }

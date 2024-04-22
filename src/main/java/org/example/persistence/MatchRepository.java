@@ -15,7 +15,8 @@ public class MatchRepository implements MemoryRepository<Match, String> {
             return null;
         }
 
-        return matches.put(extractId(match), match);
+        matches.put(extractId(match), match);
+        return match;
     }
 
 

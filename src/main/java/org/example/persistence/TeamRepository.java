@@ -17,7 +17,8 @@ public class TeamRepository implements MemoryRepository<Team, String> {
             return null;
         }
 
-        return teams.put(extractId(team), team);
+        teams.put(extractId(team), team);
+        return team;
     }
 
     @Override
@@ -41,7 +42,7 @@ public class TeamRepository implements MemoryRepository<Team, String> {
 
     private void validId(String id) {
         if (id == null) {
-            throw new IllegalArgumentException("Match id cannot be null");
+            throw new IllegalArgumentException("Team id cannot be null");
         }
     }
 }

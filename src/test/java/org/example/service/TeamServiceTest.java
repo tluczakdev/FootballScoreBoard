@@ -1,6 +1,7 @@
 package org.example.service;
 
 import org.example.model.Team;
+import org.example.persistence.TeamRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -12,7 +13,7 @@ class TeamServiceTest {
 
     @BeforeEach
     public void init() {
-        this.teamService = new TeamService();
+        this.teamService = new TeamService(new TeamRepository());
     }
 
     @Test

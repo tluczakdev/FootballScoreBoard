@@ -2,6 +2,7 @@ package org.example.service;
 
 import org.example.model.Match;
 import org.example.model.Team;
+import org.example.persistence.MatchRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -9,6 +10,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.stream.Stream;
 
 import static org.example.model.TeamKind.AWAY;
@@ -21,7 +23,7 @@ class MatchServiceTest {
 
     @BeforeEach
     public void init() {
-        this.matchService = new MatchService();
+        this.matchService = new MatchService(new MatchRepository());
     }
 
     @Test
@@ -181,6 +183,24 @@ class MatchServiceTest {
         //then
         String actualMessage = exception.getMessage();
         assertTrue(actualMessage.contains(expectedMessage));
+    }
+
+    @Test
+    public void getScoreBoard(){
+        //given
+        Team homeTeam = new Team("home");
+        Team awayTeam = new Team("away");
+        Match firstMatch = matchService.startMatch(homeTeam, awayTeam);
+        Match secondMatch = matchService.startMatch(homeTeam, awayTeam);
+
+        //when
+        List<Match> scoreBoard = matchService.getScoreBoard();
+
+        //then
+        assertNotNull(scoreBoard);
+        assertEquals(2, scoreBoard.size());
+        assertEquals(firstMatch, scoreBoard.get(0));
+        assertEquals(secondMatch, scoreBoard.get(1));
     }
 
     private static Stream<Arguments> incorrectPairTeamsInMatch() {

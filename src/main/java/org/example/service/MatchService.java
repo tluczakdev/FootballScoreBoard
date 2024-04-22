@@ -3,8 +3,18 @@ package org.example.service;
 import org.example.model.Match;
 import org.example.model.Team;
 import org.example.model.TeamKind;
+import org.example.persistence.MatchRepository;
+
+import java.util.Comparator;
+import java.util.List;
 
 public class MatchService implements IMatchService {
+
+    private final MatchRepository repository;
+
+    public MatchService(MatchRepository repository) {
+        this.repository = repository;
+    }
 
     @Override
     public Match startMatch(Team homeTeam, Team awayTeam) {
@@ -13,7 +23,7 @@ public class MatchService implements IMatchService {
             throw new IllegalArgumentException("homeTeam and awayTeam cannot be null");
         }
 
-        return new Match(homeTeam, awayTeam);
+        return repository.save(new Match(homeTeam, awayTeam));
     }
 
     @Override
@@ -38,7 +48,7 @@ public class MatchService implements IMatchService {
                 throw new IllegalArgumentException("team kind not supported");
         }
 
-        return match;
+        return repository.save(match);
     }
 
     @Override
@@ -49,5 +59,15 @@ public class MatchService implements IMatchService {
         }
 
         match.endMatch();
+        repository.save(match);
+    }
+
+    @Override
+    public List<Match> getScoreBoard() {
+        return repository.findAll()
+                .stream()
+                .filter(match -> match.getEndMatch() == null)
+                .sorted(Comparator.comparing(Match::getStartMatch))
+                .toList();
     }
 }
