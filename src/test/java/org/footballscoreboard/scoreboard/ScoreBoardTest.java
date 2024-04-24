@@ -1,20 +1,16 @@
 package org.footballscoreboard.scoreboard;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.NullSource;
 
-import java.lang.reflect.Field;
 import java.util.LinkedHashSet;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 class ScoreBoardTest {
 
@@ -121,34 +117,6 @@ class ScoreBoardTest {
         assertTrue(actualMessage.contains(expectedMessage));
     }
 
-    @Disabled
-    @Test
-    public void startGameExceptionThrowIfProblemWithAddToMemory() throws Exception {
-        // given
-        String homeTeam = "Poland";
-        String awayTeam = "USA";
-        String expectedMessage = "Internal error. Problem with start game";
-
-        LinkedHashSet<Game> mockGames = mock(LinkedHashSet.class);
-
-        ScoreBoard mockScoreBoard = mock(ScoreBoard.class);
-
-        Field field = mockScoreBoard.getClass().getDeclaredField("games");
-        field.setAccessible(true);
-        field.set(mockScoreBoard, mockGames);
-
-        when(mockGames.add(any(Game.class))).thenReturn(false);
-
-        // when
-        Exception exception = assertThrows(RuntimeException.class, () -> {
-            mockScoreBoard.startGame(homeTeam, awayTeam);
-        });
-
-        // then
-        String actualMessage = exception.getMessage();
-        assertTrue(actualMessage.contains(expectedMessage));
-    }
-
     @ParameterizedTest
     @NullSource
     public void finishMatchExceptionThrowIfGameIsNull(Game game) {
@@ -179,32 +147,6 @@ class ScoreBoardTest {
         // then
         assertEquals(scoreBoard.getSummaryGames().size(), 1);
         assertTrue(scoreBoard.getSummaryGames().contains(firstGame));
-    }
-
-    @Disabled
-    @Test
-    public void finishGameExceptionThrowIfProblemWithRemoveFromMemory() throws Exception {
-        // given
-        String expectedMessage = "Internal error. Problem with finish game";
-
-        LinkedHashSet<Game> mockGames = mock(LinkedHashSet.class);
-
-        ScoreBoard mockScoreBoard = mock(ScoreBoard.class);
-
-        Field field = mockScoreBoard.getClass().getDeclaredField("games");
-        field.setAccessible(true);
-        field.set(mockScoreBoard, mockGames);
-
-        when(mockGames.remove(any(Game.class))).thenReturn(false);
-
-        // when
-        Exception exception = assertThrows(RuntimeException.class, () -> {
-            mockScoreBoard.finishGame(any(Game.class));
-        });
-
-        // then
-        String actualMessage = exception.getMessage();
-        assertTrue(actualMessage.contains(expectedMessage));
     }
 
     @ParameterizedTest

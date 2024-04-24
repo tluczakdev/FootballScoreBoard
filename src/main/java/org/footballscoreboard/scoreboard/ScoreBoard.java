@@ -21,8 +21,7 @@ public class ScoreBoard {
         if (games.contains(game))
             throw new IllegalArgumentException("Can't start new game, because it already exists");
 
-        boolean isAdded = games.add(game);
-        if (!isAdded) throw new RuntimeException("Internal error. Problem with start game");
+        games.add(game);
 
         return game;
     }
@@ -35,8 +34,7 @@ public class ScoreBoard {
 
         if (!games.contains(game)) return;
 
-        boolean isRemoved = games.remove(game);
-        if (!isRemoved) throw new RuntimeException("Internal error. Problem with finish game");
+        games.remove(game);
     }
 
     public void updateScore(Game game, int homeScore, int awayScore) {
