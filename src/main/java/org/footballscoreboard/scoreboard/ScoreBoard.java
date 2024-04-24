@@ -6,63 +6,63 @@ import static java.lang.String.format;
 
 public class ScoreBoard {
 
-    private final LinkedHashSet<Match> matches;
+    private final LinkedHashSet<Game> games;
 
     public ScoreBoard() {
-        this.matches = new LinkedHashSet<>();
+        this.games = new LinkedHashSet<>();
     }
 
-    public Match startMatch(String homeTeam, String awayTeam) {
+    public Game startGame(String homeTeam, String awayTeam) {
 
         validTeamName(homeTeam, awayTeam);
 
-        Match match = new Match(homeTeam, awayTeam);
+        Game game = new Game(homeTeam, awayTeam);
 
-        if (matches.contains(match))
-            throw new IllegalArgumentException("Can't start new match, because it already exists");
+        if (games.contains(game))
+            throw new IllegalArgumentException("Can't start new game, because it already exists");
 
-        boolean isAdded = matches.add(match);
-        if (!isAdded) throw new RuntimeException("Internal error. Problem with start match");
+        boolean isAdded = games.add(game);
+        if (!isAdded) throw new RuntimeException("Internal error. Problem with start game");
 
-        return match;
+        return game;
     }
 
-    public void finishMatch(Match match) {
+    public void finishGame(Game game) {
 
-        if (match == null) {
-            throw new IllegalArgumentException("Match cannot be null");
+        if (game == null) {
+            throw new IllegalArgumentException("Game cannot be null");
         }
 
-        if (!matches.contains(match)) return;
+        if (!games.contains(game)) return;
 
-        boolean isRemoved = matches.remove(match);
-        if (!isRemoved) throw new RuntimeException("Internal error. Problem with finish match");
+        boolean isRemoved = games.remove(game);
+        if (!isRemoved) throw new RuntimeException("Internal error. Problem with finish game");
     }
 
-    public void updateScore(Match match, int homeScore, int awayScore) {
+    public void updateScore(Game game, int homeScore, int awayScore) {
 
-        if (match == null) {
-            throw new IllegalArgumentException("Match cannot be null");
+        if (game == null) {
+            throw new IllegalArgumentException("Game cannot be null");
         }
 
         validScore(homeScore, awayScore);
 
-        Match toUpdateMatch = matches.stream()
-                .filter(candidate -> equalsMatch(candidate, match))
+        Game toUpdateGame = games.stream()
+                .filter(candidate -> equalsMatch(candidate, game))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Match does not exist"));
+                .orElseThrow(() -> new IllegalArgumentException("Game does not exist"));
 
-        toUpdateMatch.setHomeScore(homeScore);
-        toUpdateMatch.setAwayScore(awayScore);
+        toUpdateGame.setHomeScore(homeScore);
+        toUpdateGame.setAwayScore(awayScore);
     }
 
-    public LinkedHashSet<Match> getSummaryGames() {
-        return (LinkedHashSet<Match>) matches.clone();
+    public LinkedHashSet<Game> getSummaryGames() {
+        return (LinkedHashSet<Game>) games.clone();
     }
 
-    private static boolean equalsMatch(Match candidate, Match match) {
-        return candidate.getHomeTeam().equals(match.getHomeTeam())
-                && candidate.getAwayTeam().equals(match.getAwayTeam());
+    private static boolean equalsMatch(Game candidate, Game game) {
+        return candidate.getHomeTeam().equals(game.getHomeTeam())
+                && candidate.getAwayTeam().equals(game.getAwayTeam());
     }
 
     private void validTeamName(String homeTeam, String awayTeam) {

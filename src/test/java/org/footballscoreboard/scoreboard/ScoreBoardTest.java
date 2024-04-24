@@ -27,13 +27,13 @@ class ScoreBoardTest {
 
     @ParameterizedTest
     @MethodSource("nullOrEmptyTeamNames")
-    public void startMatchExceptionThrowIfParametersIsNullOrEmpty(String homeTeam, String awayTeam) {
+    public void startGameExceptionThrowIfParametersIsNullOrEmpty(String homeTeam, String awayTeam) {
         // given
         String expectedMessage = "Parameter 'homeTeam' and/or 'awayTeam' cannot be null and empty";
 
         // when
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            scoreBoard.startMatch(homeTeam, awayTeam);
+            scoreBoard.startGame(homeTeam, awayTeam);
         });
 
         // then
@@ -43,13 +43,13 @@ class ScoreBoardTest {
 
     @ParameterizedTest
     @MethodSource("invalidTeamNames")
-    public void startMatchExceptionThrowIfParametersAreNotDifferent(String homeTeam, String awayTeam) {
+    public void startGameExceptionThrowIfParametersAreNotDifferent(String homeTeam, String awayTeam) {
         // given
         String expectedMessage = String.format("Parameter 'homeTeam' = [%s] and 'awayTeam' [%s] must be different", homeTeam, awayTeam);
 
         // when
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            scoreBoard.startMatch(homeTeam, awayTeam);
+            scoreBoard.startGame(homeTeam, awayTeam);
         });
 
         // then
@@ -58,62 +58,62 @@ class ScoreBoardTest {
     }
 
     @Test
-    public void startMatchCorrectParameters() {
+    public void startGameCorrectParameters() {
         // given
         String homeTeam = "Poland";
         String awayTeam = "USA";
 
         // when
-        Match match = scoreBoard.startMatch(homeTeam, awayTeam);
+        Game game = scoreBoard.startGame(homeTeam, awayTeam);
 
         // then
-        assertNotNull(match);
-        assertEquals(homeTeam, match.getHomeTeam());
-        assertEquals(awayTeam, match.getAwayTeam());
+        assertNotNull(game);
+        assertEquals(homeTeam, game.getHomeTeam());
+        assertEquals(awayTeam, game.getAwayTeam());
     }
 
     @Test
-    public void startMatchValidInitialScore() {
+    public void startGameValidInitialScore() {
         // given
         String homeTeam = "Poland";
         String awayTeam = "USA";
 
         // when
-        Match match = scoreBoard.startMatch(homeTeam, awayTeam);
+        Game game = scoreBoard.startGame(homeTeam, awayTeam);
 
         // then
-        assertNotNull(match);
-        assertEquals(match.getHomeScore(), 0);
-        assertEquals(match.getAwayScore(), 0);
+        assertNotNull(game);
+        assertEquals(game.getHomeScore(), 0);
+        assertEquals(game.getAwayScore(), 0);
     }
 
     @Test
-    public void startMatchAddMatchToCollection() {
+    public void startMatchAddGameToCollection() {
         // given
         String homeTeam = "Poland";
         String awayTeam = "USA";
 
         // when
-        Match match = scoreBoard.startMatch(homeTeam, awayTeam);
+        Game game = scoreBoard.startGame(homeTeam, awayTeam);
 
         // then
-        assertNotNull(match);
+        assertNotNull(game);
         assertEquals(scoreBoard.getSummaryGames().size(), 1);
-        assertTrue(scoreBoard.getSummaryGames().contains(match));
+        assertTrue(scoreBoard.getSummaryGames().contains(game));
     }
 
     @Test
-    public void startMatchExceptionThrowIfMatchExist() {
+    public void startMatchExceptionThrowIfGameExist() {
         // given
         String homeTeam = "Poland";
         String awayTeam = "USA";
-        scoreBoard.startMatch(homeTeam, awayTeam);
+        scoreBoard.startGame(homeTeam, awayTeam);
 
-        String expectedMessage = "Can't start new match, because it already exists";
+        String expectedMessage = "Can't start new game, because it already exists";
 
         // when
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            scoreBoard.startMatch(homeTeam, awayTeam);
+            scoreBoard.startGame(homeTeam, awayTeam);
         });
 
         // then
@@ -123,25 +123,25 @@ class ScoreBoardTest {
 
     @Disabled
     @Test
-    public void startMatchExceptionThrowIfProblemWithAddToMemory() throws Exception {
+    public void startGameExceptionThrowIfProblemWithAddToMemory() throws Exception {
         // given
         String homeTeam = "Poland";
         String awayTeam = "USA";
-        String expectedMessage = "Internal error. Problem with start match";
+        String expectedMessage = "Internal error. Problem with start game";
 
-        LinkedHashSet<Match> mockMatches = mock(LinkedHashSet.class);
+        LinkedHashSet<Game> mockGames = mock(LinkedHashSet.class);
 
         ScoreBoard mockScoreBoard = mock(ScoreBoard.class);
 
-        Field field = mockScoreBoard.getClass().getDeclaredField("matches");
+        Field field = mockScoreBoard.getClass().getDeclaredField("games");
         field.setAccessible(true);
-        field.set(mockScoreBoard, mockMatches);
+        field.set(mockScoreBoard, mockGames);
 
-        when(mockMatches.add(any(Match.class))).thenReturn(false);
+        when(mockGames.add(any(Game.class))).thenReturn(false);
 
         // when
         Exception exception = assertThrows(RuntimeException.class, () -> {
-            mockScoreBoard.startMatch(homeTeam, awayTeam);
+            mockScoreBoard.startGame(homeTeam, awayTeam);
         });
 
         // then
@@ -151,13 +151,13 @@ class ScoreBoardTest {
 
     @ParameterizedTest
     @NullSource
-    public void finishMatchExceptionThrowIfMatchIsNull(Match match) {
+    public void finishMatchExceptionThrowIfGameIsNull(Game game) {
         // given
-        String expectedMessage = "Match cannot be null";
+        String expectedMessage = "Game cannot be null";
 
         // when
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            scoreBoard.finishMatch(match);
+            scoreBoard.finishGame(game);
         });
 
         // then
@@ -166,40 +166,40 @@ class ScoreBoardTest {
     }
 
     @Test
-    public void finishMatchCorrectParameters() {
+    public void finishGameCorrectParameters() {
         // given
-        Match firstMatch = scoreBoard.startMatch("Poland", "USA");
-        Match secondMatch = scoreBoard.startMatch("Mexico", "Uruguay");
-        Match notExistsMatch = new Match("Brazil", "Chile");
+        Game firstGame = scoreBoard.startGame("Poland", "USA");
+        Game secondGame = scoreBoard.startGame("Mexico", "Uruguay");
+        Game notExistsGame = new Game("Brazil", "Chile");
 
         // when
-        scoreBoard.finishMatch(secondMatch);
-        scoreBoard.finishMatch(notExistsMatch);
+        scoreBoard.finishGame(secondGame);
+        scoreBoard.finishGame(notExistsGame);
 
         // then
         assertEquals(scoreBoard.getSummaryGames().size(), 1);
-        assertTrue(scoreBoard.getSummaryGames().contains(firstMatch));
+        assertTrue(scoreBoard.getSummaryGames().contains(firstGame));
     }
 
     @Disabled
     @Test
-    public void finishMatchExceptionThrowIfProblemWithRemoveFromMemory() throws Exception {
+    public void finishGameExceptionThrowIfProblemWithRemoveFromMemory() throws Exception {
         // given
-        String expectedMessage = "Internal error. Problem with finish match";
+        String expectedMessage = "Internal error. Problem with finish game";
 
-        LinkedHashSet<Match> mockMatches = mock(LinkedHashSet.class);
+        LinkedHashSet<Game> mockGames = mock(LinkedHashSet.class);
 
         ScoreBoard mockScoreBoard = mock(ScoreBoard.class);
 
-        Field field = mockScoreBoard.getClass().getDeclaredField("matches");
+        Field field = mockScoreBoard.getClass().getDeclaredField("games");
         field.setAccessible(true);
-        field.set(mockScoreBoard, mockMatches);
+        field.set(mockScoreBoard, mockGames);
 
-        when(mockMatches.remove(any(Match.class))).thenReturn(false);
+        when(mockGames.remove(any(Game.class))).thenReturn(false);
 
         // when
         Exception exception = assertThrows(RuntimeException.class, () -> {
-            mockScoreBoard.finishMatch(any(Match.class));
+            mockScoreBoard.finishGame(any(Game.class));
         });
 
         // then
@@ -209,13 +209,13 @@ class ScoreBoardTest {
 
     @ParameterizedTest
     @NullSource
-    public void updateScoreExceptionThrowIfMatchIsNull(Match match) {
+    public void updateScoreExceptionThrowIfMatchIsNull(Game game) {
         // given
-        String expectedMessage = "Match cannot be null";
+        String expectedMessage = "Game cannot be null";
 
         // when
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            scoreBoard.updateScore(match, 1, 1);
+            scoreBoard.updateScore(game, 1, 1);
         });
 
         // then
@@ -226,12 +226,12 @@ class ScoreBoardTest {
     @Test
     public void updateScoreExceptionThrowIfMatchNotExists() {
         // given
-        Match match = new Match("Poland", "USA");
-        String exceptedMessage = "Match does not exist";
+        Game game = new Game("Poland", "USA");
+        String exceptedMessage = "Game does not exist";
 
         // when
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            scoreBoard.updateScore(match, 1, 1);
+            scoreBoard.updateScore(game, 1, 1);
         });
 
         // then
@@ -243,12 +243,12 @@ class ScoreBoardTest {
     @MethodSource("invalidScore")
     public void updateScoreExceptionThrowIfScoreIdLessThanZero(int homeScore, int awayScore) {
         // given
-        Match match = new Match("Poland", "USA");
+        Game game = new Game("Poland", "USA");
         String exceptedMessage = "Score id must be greater than zero";
 
         // when
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            scoreBoard.updateScore(match, homeScore, awayScore);
+            scoreBoard.updateScore(game, homeScore, awayScore);
         });
 
         // then
@@ -259,45 +259,45 @@ class ScoreBoardTest {
     @Test
     public void updateScoreCorrectParameters() {
         // given
-        Match match = scoreBoard.startMatch("Poland", "USA");
-        Match toUpdatMatch = scoreBoard.startMatch("Brazil", "Chile");
+        Game game = scoreBoard.startGame("Poland", "USA");
+        Game toUpdatGame = scoreBoard.startGame("Brazil", "Chile");
         int newHomeScore = 1;
         int newAwayScore = 1;
 
         // when
-        scoreBoard.updateScore(toUpdatMatch, newHomeScore, newAwayScore);
+        scoreBoard.updateScore(toUpdatGame, newHomeScore, newAwayScore);
 
         //then
-        LinkedHashSet<Match> matches = scoreBoard.getSummaryGames();
-        assertEquals(2, matches.size());
-        assertTrue(matches.contains(match));
+        LinkedHashSet<Game> games = scoreBoard.getSummaryGames();
+        assertEquals(2, games.size());
+        assertTrue(games.contains(game));
 
-        Match[] arrayMatches = new Match[matches.size()];
-        matches.toArray(arrayMatches);
+        Game[] arrayGames = new Game[games.size()];
+        games.toArray(arrayGames);
 
-        Match updatedMatch = arrayMatches[1];
-        assertEquals(updatedMatch.getHomeTeam(), toUpdatMatch.getHomeTeam());
-        assertEquals(updatedMatch.getHomeScore(), newHomeScore);
-        assertEquals(updatedMatch.getAwayTeam(), toUpdatMatch.getAwayTeam());
-        assertEquals(updatedMatch.getAwayScore(), toUpdatMatch.getAwayScore());
+        Game updatedGame = arrayGames[1];
+        assertEquals(updatedGame.getHomeTeam(), toUpdatGame.getHomeTeam());
+        assertEquals(updatedGame.getHomeScore(), newHomeScore);
+        assertEquals(updatedGame.getAwayTeam(), toUpdatGame.getAwayTeam());
+        assertEquals(updatedGame.getAwayScore(), toUpdatGame.getAwayScore());
     }
 
     @Test
     public void getSummaryGames() {
         // given
         // active match
-        Match polandUSA = scoreBoard.startMatch("Poland", "USA");
+        Game polandUSA = scoreBoard.startGame("Poland", "USA");
         scoreBoard.updateScore(polandUSA, 0, 1);
 
-        Match mexicoUruquay = scoreBoard.startMatch("Mexico", "Uruguay");
+        Game mexicoUruquay = scoreBoard.startGame("Mexico", "Uruguay");
         scoreBoard.updateScore(mexicoUruquay, 3, 1);
 
-        Match brazilChile = scoreBoard.startMatch("Brazil", "Chile");
+        Game brazilChile = scoreBoard.startGame("Brazil", "Chile");
         scoreBoard.updateScore(brazilChile, 2, 1);
 
         // finished match
-        Match franceGermany = scoreBoard.startMatch("France", "Germany");
-        scoreBoard.finishMatch(franceGermany);
+        Game franceGermany = scoreBoard.startGame("France", "Germany");
+        scoreBoard.finishGame(franceGermany);
 
         // when
         var summary = scoreBoard.getSummaryGames();
