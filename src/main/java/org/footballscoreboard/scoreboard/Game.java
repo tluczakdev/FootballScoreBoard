@@ -14,19 +14,19 @@ public class Game {
         this.awayTeam = awayTeam;
     }
 
-    String getHomeTeam() {
+    public String getHomeTeam() {
         return homeTeam;
     }
 
-    String getAwayTeam() {
+    public String getAwayTeam() {
         return awayTeam;
     }
 
-    int getHomeScore() {
+    public int getHomeScore() {
         return homeScore;
     }
 
-    int getAwayScore() {
+    public int getAwayScore() {
         return awayScore;
     }
 
