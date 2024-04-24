@@ -4,8 +4,8 @@ import java.util.Objects;
 
 public class Match {
 
-    private String homeTeam;
-    private String awayTeam;
+    private final String homeTeam;
+    private final String awayTeam;
     private int homeScore = 0;
     private int awayScore = 0;
 
@@ -28,6 +28,14 @@ public class Match {
 
     int getAwayScore() {
         return awayScore;
+    }
+
+    void setHomeScore(int homeScore) {
+        this.homeScore = homeScore;
+    }
+
+    void setAwayScore(int awayScore) {
+        this.awayScore = awayScore;
     }
 
     @Override

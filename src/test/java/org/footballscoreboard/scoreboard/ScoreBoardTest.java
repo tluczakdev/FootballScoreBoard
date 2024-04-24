@@ -207,6 +207,81 @@ class ScoreBoardTest {
         assertTrue(actualMessage.contains(expectedMessage));
     }
 
+    @ParameterizedTest
+    @NullSource
+    public void updateScoreExceptionThrowIfMatchIsNull(Match match) {
+        // given
+        String expectedMessage = "Match cannot be null";
+
+        // when
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            scoreBoard.updateScore(match, 1, 1);
+        });
+
+        // then
+        String actualMessage = exception.getMessage();
+        assertTrue(actualMessage.contains(expectedMessage));
+    }
+
+    @Test
+    public void updateScoreExceptionThrowIfMatchNotExists() {
+        // given
+        Match match = new Match("Poland", "USA");
+        String exceptedMessage = "Match does not exist";
+
+        // when
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            scoreBoard.updateScore(match, 1, 1);
+        });
+
+        // then
+        String actualMessage = exception.getMessage();
+        assertTrue(actualMessage.contains(exceptedMessage));
+    }
+
+    @ParameterizedTest
+    @MethodSource("invalidScore")
+    public void updateScoreExceptionThrowIfScoreIdLessThanZero(int homeScore, int awayScore) {
+        // given
+        Match match = new Match("Poland", "USA");
+        String exceptedMessage = "Score id must be greater than zero";
+
+        // when
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            scoreBoard.updateScore(match, homeScore, awayScore);
+        });
+
+        // then
+        String actualMessage = exception.getMessage();
+        assertTrue(actualMessage.contains(exceptedMessage));
+    }
+
+    @Test
+    public void updateScoreCorrectParameters() {
+        // given
+        Match match = scoreBoard.startMatch("Poland", "USA");
+        Match toUpdatMatch = scoreBoard.startMatch("Brazil", "Chile");
+        int newHomeScore = 1;
+        int newAwayScore = 1;
+
+        // when
+        scoreBoard.updateScore(toUpdatMatch, newHomeScore, newAwayScore);
+
+        //then
+        LinkedHashSet<Match> matches = scoreBoard.getMatches();
+        assertEquals(2, matches.size());
+        assertTrue(matches.contains(match));
+
+        Match[] arrayMatches = new Match[matches.size()];
+        matches.toArray(arrayMatches);
+
+        Match updatedMatch = arrayMatches[1];
+        assertEquals(updatedMatch.getHomeTeam(), toUpdatMatch.getHomeTeam());
+        assertEquals(updatedMatch.getHomeScore(), newHomeScore);
+        assertEquals(updatedMatch.getAwayTeam(), toUpdatMatch.getAwayTeam());
+        assertEquals(updatedMatch.getAwayScore(), toUpdatMatch.getAwayScore());
+    }
+
     private static Stream<Arguments> nullOrEmptyTeamNames() {
         return Stream.of(
                 Arguments.of(null, null),
@@ -227,5 +302,12 @@ class ScoreBoardTest {
         );
     }
 
+    private static Stream<Arguments> invalidScore() {
+        return Stream.of(
+                Arguments.of(-1, 1),
+                Arguments.of(1, -1),
+                Arguments.of(-1, -1)
+        );
+    }
 
 }

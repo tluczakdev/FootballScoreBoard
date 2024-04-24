@@ -39,6 +39,28 @@ public class ScoreBoard {
         if (!isRemoved) throw new RuntimeException("Internal error. Problem with finish match");
     }
 
+    public void updateScore(Match match, int homeScore, int awayScore) {
+
+        if (match == null) {
+            throw new IllegalArgumentException("Match cannot be null");
+        }
+
+        validScore(homeScore, awayScore);
+
+        Match toUpdateMatch = matches.stream()
+                .filter(candidate -> equalsMatch(candidate, match))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Match does not exist"));
+
+        toUpdateMatch.setHomeScore(homeScore);
+        toUpdateMatch.setAwayScore(awayScore);
+    }
+
+    private static boolean equalsMatch(Match candidate, Match match) {
+        return candidate.getHomeTeam().equals(match.getHomeTeam())
+                && candidate.getAwayTeam().equals(match.getAwayTeam());
+    }
+
     private void validTeamName(String homeTeam, String awayTeam) {
 
         if (homeTeam == null || homeTeam.isBlank()) {
@@ -53,6 +75,10 @@ public class ScoreBoard {
             throw new IllegalArgumentException(
                     format("Parameter 'homeTeam' = [%s] and 'awayTeam' [%s] must be different", homeTeam, awayTeam));
         }
+    }
+
+    private void validScore(int homeScore, int awayScore) {
+        if (homeScore < 0 || awayScore < 0) throw new IllegalArgumentException("Score id must be greater than zero");
     }
 
     public LinkedHashSet<Match> getMatches() {
