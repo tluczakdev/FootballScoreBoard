@@ -98,8 +98,8 @@ class ScoreBoardTest {
 
         // then
         assertNotNull(match);
-        assertEquals(scoreBoard.getMatches().size(), 1);
-        assertTrue(scoreBoard.getMatches().contains(match));
+        assertEquals(scoreBoard.getSummaryGames().size(), 1);
+        assertTrue(scoreBoard.getSummaryGames().contains(match));
     }
 
     @Test
@@ -177,8 +177,8 @@ class ScoreBoardTest {
         scoreBoard.finishMatch(notExistsMatch);
 
         // then
-        assertEquals(scoreBoard.getMatches().size(), 1);
-        assertTrue(scoreBoard.getMatches().contains(firstMatch));
+        assertEquals(scoreBoard.getSummaryGames().size(), 1);
+        assertTrue(scoreBoard.getSummaryGames().contains(firstMatch));
     }
 
     @Disabled
@@ -268,7 +268,7 @@ class ScoreBoardTest {
         scoreBoard.updateScore(toUpdatMatch, newHomeScore, newAwayScore);
 
         //then
-        LinkedHashSet<Match> matches = scoreBoard.getMatches();
+        LinkedHashSet<Match> matches = scoreBoard.getSummaryGames();
         assertEquals(2, matches.size());
         assertTrue(matches.contains(match));
 
@@ -280,6 +280,34 @@ class ScoreBoardTest {
         assertEquals(updatedMatch.getHomeScore(), newHomeScore);
         assertEquals(updatedMatch.getAwayTeam(), toUpdatMatch.getAwayTeam());
         assertEquals(updatedMatch.getAwayScore(), toUpdatMatch.getAwayScore());
+    }
+
+    @Test
+    public void getSummaryGames() {
+        // given
+        // active match
+        Match polandUSA = scoreBoard.startMatch("Poland", "USA");
+        scoreBoard.updateScore(polandUSA, 0, 1);
+
+        Match mexicoUruquay = scoreBoard.startMatch("Mexico", "Uruguay");
+        scoreBoard.updateScore(mexicoUruquay, 3, 1);
+
+        Match brazilChile = scoreBoard.startMatch("Brazil", "Chile");
+        scoreBoard.updateScore(brazilChile, 2, 1);
+
+        // finished match
+        Match franceGermany = scoreBoard.startMatch("France", "Germany");
+        scoreBoard.finishMatch(franceGermany);
+
+        // when
+        var summary = scoreBoard.getSummaryGames();
+
+        //then
+        assertNotNull(summary);
+        assertEquals(summary.size(), 3);
+        assertTrue(summary.contains(polandUSA));
+        assertTrue(summary.contains(mexicoUruquay));
+        assertTrue(summary.contains(brazilChile));
     }
 
     private static Stream<Arguments> nullOrEmptyTeamNames() {

@@ -56,6 +56,10 @@ public class ScoreBoard {
         toUpdateMatch.setAwayScore(awayScore);
     }
 
+    public LinkedHashSet<Match> getSummaryGames() {
+        return (LinkedHashSet<Match>) matches.clone();
+    }
+
     private static boolean equalsMatch(Match candidate, Match match) {
         return candidate.getHomeTeam().equals(match.getHomeTeam())
                 && candidate.getAwayTeam().equals(match.getAwayTeam());
@@ -79,9 +83,5 @@ public class ScoreBoard {
 
     private void validScore(int homeScore, int awayScore) {
         if (homeScore < 0 || awayScore < 0) throw new IllegalArgumentException("Score id must be greater than zero");
-    }
-
-    public LinkedHashSet<Match> getMatches() {
-        return (LinkedHashSet<Match>) matches.clone();
     }
 }
