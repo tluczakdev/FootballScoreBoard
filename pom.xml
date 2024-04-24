@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.example</groupId>
+    <groupId>org.footballscoreboard</groupId>
     <artifactId>FootballScoreBoard</artifactId>
     <version>1.0-SNAPSHOT</version>
 
@@ -15,6 +15,7 @@
         <junit.version>5.10.2</junit.version>
         <junit.jupiter.params.version>5.10.2</junit.jupiter.params.version>
         <assertj.version>3.20.2</assertj.version>
+        <mockito.version>5.3.1</mockito.version>
     </properties>
 
     <dependencies>
@@ -32,6 +33,12 @@
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
             <version>${assertj.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
