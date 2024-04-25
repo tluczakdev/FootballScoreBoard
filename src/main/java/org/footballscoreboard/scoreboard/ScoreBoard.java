@@ -1,10 +1,14 @@
 package org.footballscoreboard.scoreboard;
 
-import java.util.LinkedHashSet;
+import java.util.*;
+import java.util.logging.Logger;
 
 import static java.lang.String.format;
+import static java.util.stream.Collectors.toUnmodifiableSet;
 
 public class ScoreBoard {
+
+    private final Logger logger = Logger.getLogger(getClass().getName());
 
     private final LinkedHashSet<Game> games;
 
@@ -12,74 +16,136 @@ public class ScoreBoard {
         this.games = new LinkedHashSet<>();
     }
 
-    public Game startGame(String homeTeam, String awayTeam) {
+    public void startGame(String homeTeam, String awayTeam) {
 
-        validTeamName(homeTeam, awayTeam);
+        if (isInvalidTeamName(homeTeam, awayTeam)) return;
 
         Game game = new Game(homeTeam, awayTeam);
 
-        if (games.contains(game))
-            throw new IllegalArgumentException("Can't start new game, because it already exists");
-
-        games.add(game);
-
-        return game;
+        boolean isAdded = games.add(game);
+        if (!isAdded) {
+            logger.warning(format("Can't start new game [%s vs %s], because it already exists", homeTeam, awayTeam));
+        }
     }
 
-    public void finishGame(Game game) {
+    public void finishGame(String homeTeam, String awayTeam) {
 
-        if (game == null) {
-            throw new IllegalArgumentException("Game cannot be null");
+        if (isInvalidTeamName(homeTeam, awayTeam)) return;
+
+        Optional<Game> oGame = games.stream()
+                .filter(candidate -> equalsMatch(candidate, homeTeam, awayTeam))
+                .findFirst();
+
+        oGame.ifPresent(games::remove);
+    }
+
+    public boolean updateScore(String homeTeam, String awayTeam, int homeScore, int awayScore) {
+
+        if (isInvalidTeamName(homeTeam, awayTeam)) return false;
+
+        if (isInvalidScoreValue(homeScore, awayScore)) return false;
+
+        Optional<Game> oGame = games.stream()
+                .filter(candidate -> equalsMatch(candidate, homeTeam, awayTeam))
+                .findFirst();
+
+        if (oGame.isPresent()) {
+            Game toUpdateGame = oGame.get();
+            toUpdateGame.setHomeScore(homeScore);
+            toUpdateGame.setAwayScore(awayScore);
+            return true;
         }
 
-        if (!games.contains(game)) return;
-
-        games.remove(game);
+        return false;
     }
 
-    public void updateScore(Game game, int homeScore, int awayScore) {
+    public Set<? extends ScoreBoardItem> getSummaryGames() {
+        return games.stream()
+                .map(ScoreBoardItem::of)
+                .collect(toUnmodifiableSet());
+    }
 
-        if (game == null) {
-            throw new IllegalArgumentException("Game cannot be null");
+
+    private static boolean equalsMatch(Game game, String homeTeam, String awayTeam) {
+        return game.getHomeTeam().equals(homeTeam)
+                && game.getAwayTeam().equals(awayTeam);
+    }
+
+    private boolean isInvalidTeamName(String homeTeam, String awayTeam) {
+
+        if (isNullOrBlank(homeTeam)) {
+            logger.warning("Parameter 'homeTeam' can't be null or empty");
+            return true;
         }
 
-        validScore(homeScore, awayScore);
-
-        Game toUpdateGame = games.stream()
-                .filter(candidate -> equalsMatch(candidate, game))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Game does not exist"));
-
-        toUpdateGame.setHomeScore(homeScore);
-        toUpdateGame.setAwayScore(awayScore);
-    }
-
-    public LinkedHashSet<Game> getSummaryGames() {
-        return (LinkedHashSet<Game>) games.clone();
-    }
-
-    private static boolean equalsMatch(Game candidate, Game game) {
-        return candidate.getHomeTeam().equals(game.getHomeTeam())
-                && candidate.getAwayTeam().equals(game.getAwayTeam());
-    }
-
-    private void validTeamName(String homeTeam, String awayTeam) {
-
-        if (homeTeam == null || homeTeam.isBlank()) {
-            throw new IllegalArgumentException("Parameter 'homeTeam' and/or 'awayTeam' cannot be null and empty");
-        }
-
-        if (awayTeam == null || awayTeam.isBlank()) {
-            throw new IllegalArgumentException("Parameter 'homeTeam' and/or 'awayTeam' cannot be null and empty");
+        if (isNullOrBlank(awayTeam)) {
+            logger.warning("Parameter 'awayTeam' can't be null or empty");
+            return true;
         }
 
         if (homeTeam.toLowerCase().trim().equals(awayTeam.toLowerCase().trim())) {
-            throw new IllegalArgumentException(
+            logger.warning(
                     format("Parameter 'homeTeam' = [%s] and 'awayTeam' [%s] must be different", homeTeam, awayTeam));
+            return true;
         }
+
+        return false;
     }
 
-    private void validScore(int homeScore, int awayScore) {
-        if (homeScore < 0 || awayScore < 0) throw new IllegalArgumentException("Score id must be greater than zero");
+    private boolean isInvalidScoreValue(int homeScore, int awayScore) {
+
+        if (homeScore < 0) {
+            logger.warning(format("Parameters homeScore[%d] must be greater than zero", homeScore));
+            return true;
+        }
+
+        if (awayScore < 0) {
+            logger.warning(format("Parameters awayScore[%d] must be greater than zero", awayScore));
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isNullOrBlank(String value) {
+        return value == null || value.isBlank();
+    }
+
+    public static class ScoreBoardItem {
+        private final String homeTeam;
+        private final int homeScore;
+        private final String awayTeam;
+        private final int awayScore;
+
+        ScoreBoardItem(String homeTeam, int homeScore, String awayTeam, int awayScore) {
+            this.homeTeam = homeTeam;
+            this.awayTeam = awayTeam;
+            this.homeScore = homeScore;
+            this.awayScore = awayScore;
+        }
+
+        static ScoreBoardItem of(Game game) {
+            return new ScoreBoardItem(
+                    game.getHomeTeam(),
+                    game.getHomeScore(),
+                    game.getAwayTeam(),
+                    game.getAwayScore()
+            );
+        }
+
+        public String getHomeTeam() {
+            return homeTeam;
+        }
+
+        public int getHomeScore() {
+            return homeScore;
+        }
+
+        public String getAwayTeam() {
+            return awayTeam;
+        }
+
+        public int getAwayScore() {
+            return awayScore;
+        }
     }
 }

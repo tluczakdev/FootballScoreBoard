@@ -2,7 +2,7 @@ package org.footballscoreboard.scoreboard;
 
 import java.util.Objects;
 
-public class Game {
+class Game {
 
     private final String homeTeam;
     private final String awayTeam;
